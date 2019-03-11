@@ -23,7 +23,7 @@ const ServiceList = (props) => (
         <List>
 
             {props.services.map((service) => (
-                <ListItem>
+                <ListItem key={service.id}>
                     <ListItemAvatar>
                         <Avatar>
                             {service.title[0].toUpperCase()}
