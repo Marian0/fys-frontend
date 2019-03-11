@@ -15,3 +15,20 @@ export const startSetServices = () => {
         }).catch(() => dispatch(hideLoadingBar()));
     };
 };
+
+
+export const addService = (service) => ({
+    type: 'ADD_SERVICE',
+    service
+});
+
+export const startAddService = (service) => {
+    return (dispatch) => {
+        dispatch(showLoadingBar());
+        return FYSApiClient.addService(service).then((response) => {
+            console.log("RE", response);
+            dispatch(addService(response.data.service));
+            dispatch(hideLoadingBar());
+        }).catch(() => dispatch(hideLoadingBar()));
+    };
+};

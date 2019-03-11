@@ -3,6 +3,15 @@ import axios from 'axios';
 export default class FYSApiClient {
 
     /**
+     * Returns token of active user
+     * @returns {*|string}
+     */
+    static getUserToken = () => {
+        const user = JSON.parse(localStorage.getItem('user'));
+        return user.api_token || "";
+    };
+
+    /**
      * API Client with default parameters
      * @type {AxiosInstance}
      */
@@ -11,7 +20,8 @@ export default class FYSApiClient {
         timeout: 5000,
         headers: {
             'Content-Type': 'application/json',
-            'Accept': 'application/json'
+            'Accept': 'application/json',
+            'Authorization': 'Bearer ' + this.getUserToken(),
         },
         validateStatus: function (status) {
             return status < 500; // Reject only if the status code is greater than or equal to 500
@@ -38,5 +48,14 @@ export default class FYSApiClient {
     static getServices = () => {
         return this.client.get(`services`);
     };
+
+    /**
+     *
+     * @param data
+     * @returns {AxiosPromise<any>}
+     */
+    static addService = (data) => {
+        return this.client.post(`services`, data);
+    }
 
 }
