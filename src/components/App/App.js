@@ -57,6 +57,10 @@ const styles = theme => ({
         flexGrow: 1,
         padding: theme.spacing.unit * 3,
     },
+    rightToolbar: {
+        marginLeft: 'auto',
+        marginRight: -12,
+    },
 });
 
 class App extends Component {
@@ -121,6 +125,10 @@ class App extends Component {
                             <Typography variant="h6" color="inherit" noWrap>
                                 Find Your Service
                             </Typography>
+
+                            <section className={classes.rightToolbar}>
+                                {typeof this.props.user !== 'undefined'? this.props.user.name: ""}
+                            </section>
                         </Toolbar>
                         {this.renderLoadingBar()}
                     </AppBar>
@@ -182,7 +190,8 @@ App.propTypes = {
 const AppStyle = withStyles(styles, {withTheme: true})(App);
 
 const mapStateToProps = (state) => ({
-    loading: state.loading
+    loading: state.loading,
+    user: state.user
 });
 
 
