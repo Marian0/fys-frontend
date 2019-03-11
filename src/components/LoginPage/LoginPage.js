@@ -1,13 +1,11 @@
 import React, {Component} from 'react';
-import {userService} from '../../remote/backend';
 import InputAdornment from '@material-ui/core/InputAdornment';
 import Visibility from '@material-ui/icons/Visibility';
 import VisibilityOff from '@material-ui/icons/VisibilityOff';
 import IconButton from '@material-ui/core/IconButton';
 import {Paper, withStyles, Grid, TextField, Button, FormControlLabel, Checkbox} from '@material-ui/core';
 import {Face, Fingerprint} from '@material-ui/icons'
-import {showSnackbar} from "../../redux/actions/snackbar";
-import {hideLoadingBar, showLoadingBar} from "../../redux/actions/loading";
+import {login, loggedOut} from "../../redux/actions/user";
 import {connect} from 'react-redux';
 
 const styles = theme => ({
@@ -24,7 +22,7 @@ class LoginPage extends Component {
     constructor(props) {
         super(props);
 
-        userService.logout();
+        this.props.loggedOut();
 
         this.state = {
             username: '',
@@ -52,20 +50,13 @@ class LoginPage extends Component {
             return;
         }
 
-        this.props.showLoadingBar();
+        this.props.login(username, password).then((status) => {
+            if (status) {
+                const {from} = this.props.location.state || {from: {pathname: "/"}};
+                this.props.history.push(from);
+            }
+        });
 
-        userService.login(username, password)
-            .then(
-                user => {
-                    this.props.hideLoadingBar();
-                    const {from} = this.props.location.state || {from: {pathname: "/"}};
-                    this.props.history.push(from);
-                },
-                error => {
-                    this.props.hideLoadingBar();
-                    this.props.showSnackbar(error.message);
-                }
-            );
     }
 
     handleClickShowPassword = () => {
@@ -74,7 +65,7 @@ class LoginPage extends Component {
 
     render() {
         const {classes} = this.props;
-        const {username, password, submitted}  = this.state;
+        const {username, password, submitted} = this.state;
 
         return (
             <form name="form" onSubmit={this.handleSubmit}>
@@ -158,9 +149,8 @@ const mapStateToProps = (state) => ({
 });
 
 const mapDispatchToProps = dispatch => ({
-    showLoadingBar: () => dispatch(showLoadingBar()),
-    hideLoadingBar: () => dispatch(hideLoadingBar()),
-    showSnackbar: (message) => dispatch(showSnackbar(message))
+    login: (email, password) => dispatch(login(email, password)),
+    loggedOut: () => dispatch(loggedOut())
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(LoginStyle);
