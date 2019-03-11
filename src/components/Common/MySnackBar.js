@@ -49,7 +49,7 @@ const styles1 = theme => ({
 });
 
 const MySnackBar = (props) => {
-    const {classes, className, ...other} = props;
+    const {classes, className} = props;
     const { variant , message, open} = props.snackbar;
 
     const Icon = variantIcon[variant];
@@ -85,7 +85,6 @@ const MySnackBar = (props) => {
                         <CloseIcon className={classes.icon}/>
                     </IconButton>,
                 ]}
-                {...other}
             />
         </Snackbar>
     );
@@ -96,7 +95,7 @@ MySnackBar.propTypes = {
     className: PropTypes.string,
     message: PropTypes.node,
     onClose: PropTypes.func,
-    variant: PropTypes.oneOf(['success', 'warning', 'error', 'info']).isRequired,
+    variant: PropTypes.oneOf(['success', 'warning', 'error', 'info']),
 };
 
 const SnackBarStyle = withStyles(styles1)(MySnackBar);
