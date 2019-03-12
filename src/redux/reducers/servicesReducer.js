@@ -3,7 +3,7 @@ export default (state = [], action) => {
         case 'SET_SERVICES':
             return action.services;
         case 'ADD_SERVICE':
-            return state.concat(action.service);
+            return [action.service, ...state];
         default:
             return state
     }

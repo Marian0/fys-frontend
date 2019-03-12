@@ -4,6 +4,7 @@ import Button from '@material-ui/core/Button';
 import TextField from '@material-ui/core/TextField';
 import {connect} from 'react-redux';
 import {startAddService} from "../../redux/actions/services";
+import {showSnackbar} from "../../redux/actions/snackbar";
 import Autocomplete from "../Autocomplete/Autocomplete";
 
 
@@ -104,7 +105,34 @@ class ServiceForm extends React.Component {
 
     handleSubmit = (e) => {
         e.preventDefault();
-        this.props.startAddService(this.state);
+
+        const service = {
+
+            title: this.state.title,
+            description: this.state.description,
+            address: this.state.route + " " + this.state.street_number,
+            city: this.state.city,
+            state: this.state.state,
+            zip_code: this.state.zip_code,
+            location: {
+                lat: this.state.lat,
+                lng: this.state.lng
+            }
+
+        };
+
+        this.props.startAddService(service).then(response => {
+
+            if (response.status !== 200) {
+                this.props.showSnackbar("Error: " + response.data.message || " The given data is invalid.");
+                console.log("ERROR: ", response);
+                return;
+            }
+
+            this.props.showSnackbar("Success!");
+            this.props.history.push({pathname: "/"});
+
+        });
     };
 
     render() {
@@ -150,7 +178,7 @@ class ServiceForm extends React.Component {
                     value={this.state.street_number}
                     margin="normal"
                     variant="outlined"
-                    disabled
+                    onChange={this.handleInputChange}
                 />
 
                 <TextField
@@ -161,7 +189,7 @@ class ServiceForm extends React.Component {
                     value={this.state.route}
                     margin="normal"
                     variant="outlined"
-                    disabled
+                    onChange={this.handleInputChange}
                 />
 
                 <TextField
@@ -173,7 +201,7 @@ class ServiceForm extends React.Component {
                     value={this.state.city}
                     margin="normal"
                     variant="outlined"
-                    disabled
+                    onChange={this.handleInputChange}
                 />
 
                 <TextField
@@ -184,7 +212,7 @@ class ServiceForm extends React.Component {
                     value={this.state.state}
                     margin="normal"
                     variant="outlined"
-                    disabled
+                    onChange={this.handleInputChange}
                 />
 
                 <TextField
@@ -195,7 +223,7 @@ class ServiceForm extends React.Component {
                     value={this.state.zip_code}
                     margin="normal"
                     variant="outlined"
-                    disabled
+                    onChange={this.handleInputChange}
                 />
 
                 <TextField
@@ -207,7 +235,7 @@ class ServiceForm extends React.Component {
                     value={this.state.country}
                     margin="normal"
                     variant="outlined"
-                    disabled
+                    onChange={this.handleInputChange}
                 />
 
                 <TextField
@@ -219,7 +247,7 @@ class ServiceForm extends React.Component {
                     value={this.state.lat}
                     margin="normal"
                     variant="outlined"
-                    disabled
+                    onChange={this.handleInputChange}
                 />
 
                 <TextField
@@ -231,21 +259,21 @@ class ServiceForm extends React.Component {
                     value={this.state.lng}
                     margin="normal"
                     variant="outlined"
-                    disabled
+                    onChange={this.handleInputChange}
                 />
-
-
 
                 <Button variant="contained" type="submit" color="primary" className={classes.button}>
                     Save
                 </Button>
+
             </form>
         );
     }
 }
 
 const mapDispatchToProps = dispatch => ({
-    startAddService: (service) => dispatch(startAddService(service))
+    startAddService: (service) => dispatch(startAddService(service)),
+    showSnackbar: (message) => dispatch(showSnackbar(message))
 });
 
 export default connect(null, mapDispatchToProps)(withStyles(styles)(ServiceForm));

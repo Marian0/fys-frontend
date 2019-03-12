@@ -1,5 +1,6 @@
 import {showLoadingBar, hideLoadingBar} from "./loading";
 import FYSApiClient from '../../remote/FYSApiClient';
+import {showSnackbar} from "./snackbar";
 
 export const setServices = (services) => ({
     type: 'SET_SERVICES',
@@ -26,9 +27,20 @@ export const startAddService = (service) => {
     return (dispatch) => {
         dispatch(showLoadingBar());
         return FYSApiClient.addService(service).then((response) => {
-            console.log("RE", response);
-            dispatch(addService(response.data.service));
             dispatch(hideLoadingBar());
+            console.log("REsponse", response);
+
+            if (!response.data) {
+                dispatch(showSnackbar("There was an error on the request"));
+                return;
+            }
+
+            if (response.status === 200) {
+                dispatch(addService(response.data.service));
+            }
+
+            return response;
+
         }).catch(() => dispatch(hideLoadingBar()));
     };
 };
