@@ -127,7 +127,7 @@ class App extends Component {
                             </Typography>
 
                             <section className={classes.rightToolbar}>
-                                {typeof this.props.user !== 'undefined'? this.props.user.name: ""}
+                                {this.props.user? this.props.user.name: ""}
                             </section>
                         </Toolbar>
                         {this.renderLoadingBar()}
@@ -168,6 +168,7 @@ class App extends Component {
                         <div>
                             <Route exact path="/" component={ServicesList}/>
                             <PrivateRoute exact path="/services/new" component={ServiceForm}/>
+                            <PrivateRoute exact path="/services/:id/edit" component={ServiceForm}/>
                             <Route exact path="/about" component={AboutPage}/>
 
                             <Route path="/login" component={LoginPage}/>

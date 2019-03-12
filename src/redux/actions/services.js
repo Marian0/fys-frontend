@@ -44,3 +44,33 @@ export const startAddService = (service) => {
         }).catch(() => dispatch(hideLoadingBar()));
     };
 };
+
+
+
+export const updateService = (service) => ({
+    type: 'UPDATE_SERVICE',
+    id: service.id,
+    service
+});
+
+export const startUpdateService = (id, service) => {
+    return (dispatch) => {
+        dispatch(showLoadingBar());
+        return FYSApiClient.updateService(id, service).then((response) => {
+            dispatch(hideLoadingBar());
+            console.log("REsponse", response);
+
+            if (!response.data) {
+                dispatch(showSnackbar("There was an error on the request"));
+                return;
+            }
+
+            if (response.status === 200) {
+                dispatch(updateService(response.data.service));
+            }
+
+            return response;
+
+        }).catch(() => dispatch(hideLoadingBar()));
+    };
+};

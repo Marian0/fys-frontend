@@ -8,7 +8,9 @@ export default class FYSApiClient {
      */
     static getUserToken = () => {
         const user = JSON.parse(localStorage.getItem('user'));
-        return user.api_token || "";
+        if (user) {
+            return user.api_token;
+        }
     };
 
     /**
@@ -56,6 +58,23 @@ export default class FYSApiClient {
      */
     static addService = (data) => {
         return this.client.post(`services`, data);
-    }
+    };
+
+    /**
+     * GetService
+     * @returns {AxiosPromise<any>}
+     */
+    static getService = (id) => {
+        return this.client.get(`services/${id}`);
+    };
+
+    /**
+     *
+     * @param data
+     * @returns {AxiosPromise<any>}
+     */
+    static updateService = (id, data) => {
+        return this.client.put(`services/${id}`, data);
+    };
 
 }

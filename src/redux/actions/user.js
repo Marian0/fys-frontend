@@ -3,6 +3,11 @@ import {showSnackbar} from "./snackbar";
 import FYSApiClient from '../../remote/FYSApiClient';
 
 export const loggedIn = (user) => {
+
+    if (!user) {
+        return;
+    }
+
     localStorage.setItem('user', JSON.stringify(user));
 
     return {

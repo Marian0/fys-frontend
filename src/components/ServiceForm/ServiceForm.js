@@ -3,9 +3,10 @@ import {withStyles} from '@material-ui/core/styles';
 import Button from '@material-ui/core/Button';
 import TextField from '@material-ui/core/TextField';
 import {connect} from 'react-redux';
-import {startAddService} from "../../redux/actions/services";
+import {startAddService, startUpdateService} from "../../redux/actions/services";
 import {showSnackbar} from "../../redux/actions/snackbar";
 import Autocomplete from "../Autocomplete/Autocomplete";
+import FYSApiClient from "../../remote/FYSApiClient";
 
 
 const styles = theme => ({
@@ -25,36 +26,43 @@ const styles = theme => ({
     },
 });
 
-const fields = [
-    'title',
-    'description',
-];
-
-
 class ServiceForm extends React.Component {
 
     constructor(props) {
         super(props);
 
-        const state = {
+        this.state = {
+            id: "",
+            title: "",
+            description: "",
             country: "",
-            route: "",
-            street_number: "",
+            address: "",
             zip_code: "",
             city: "",
             state: "",
-            lat: "",
-            lng: ""
+            location: {
+                lat: "",
+                lng: ""
+            }
         };
 
-        fields.forEach(f => state[f] = props.service ? props.service[f] : '');
+        if (props.match.params.id) {
+            this.state.loading = true;
 
-        this.state = state;
+            FYSApiClient.getService(props.match.params.id).then((response) => {
 
-        this.handleInputChange = this.handleInputChange.bind(this);
+                if (response.data.service) {
+                    this.setState({
+                        loading: false,
+                        ...response.data.service
+                    });
+                }
+
+            });
+        }
     }
 
-    handleInputChange(event) {
+    handleInputChange = (event) => {
         const target = event.target;
         const value = target.type === 'checkbox' ? target.checked : target.value;
         const name = target.name;
@@ -62,29 +70,24 @@ class ServiceForm extends React.Component {
         this.setState({
             [name]: value
         });
-    }
+    };
 
-    showPlaceDetails(place) {
+    showPlaceDetails = (place) => {
 
         const newState = {};
 
-        newState['lat'] = place.geometry.location.lat();
-        newState['lng'] = place.geometry.location.lng();
+        newState['location'] = {
+            lat: place.geometry.location.lat(),
+            lng: place.geometry.location.lng()
+        };
+
+        newState['address'] = place.formatted_address;
 
         place.address_components.forEach(el => {
-
-            if (el.types.includes('street_number')) {
-                newState['street_number'] = el.long_name;
-            }
-
-            if (el.types.includes('route')) {
-                newState['route'] = el.long_name;
-            }
 
             if (el.types.includes('locality')) {
                 newState['city'] = el.long_name;
             }
-
 
             if (el.types.includes('administrative_area_level_1')) {
                 newState['state'] = el.long_name;
@@ -97,31 +100,33 @@ class ServiceForm extends React.Component {
             if (el.types.includes('postal_code')) {
                 newState['zip_code'] = el.long_name;
             }
+
         });
 
         this.setState(newState);
-    }
+    };
 
 
     handleSubmit = (e) => {
         e.preventDefault();
 
-        const service = {
+        if (!this.state.id) {
+            this.props.startAddService(this.state).then(response => {
 
-            title: this.state.title,
-            description: this.state.description,
-            address: this.state.route + " " + this.state.street_number,
-            city: this.state.city,
-            state: this.state.state,
-            zip_code: this.state.zip_code,
-            location: {
-                lat: this.state.lat,
-                lng: this.state.lng
-            }
+                if (response.status !== 200) {
+                    this.props.showSnackbar("Error: " + response.data.message || " The given data is invalid.");
+                    console.log("ERROR: ", response);
+                    return;
+                }
 
-        };
+                this.props.showSnackbar("Success!");
+                this.props.history.push({pathname: "/"});
 
-        this.props.startAddService(service).then(response => {
+            });
+            return;
+        }
+
+        this.props.startUpdateService(this.state.id, this.state).then(response => {
 
             if (response.status !== 200) {
                 this.props.showSnackbar("Error: " + response.data.message || " The given data is invalid.");
@@ -133,10 +138,15 @@ class ServiceForm extends React.Component {
             this.props.history.push({pathname: "/"});
 
         });
+
     };
 
     render() {
         const {classes} = this.props;
+
+        if (this.state.loading) {
+            return <p>Loading...</p>;
+        }
 
         return (
             <form onSubmit={this.handleSubmit}>
@@ -168,28 +178,18 @@ class ServiceForm extends React.Component {
                 />
 
                 <h2>Location</h2>
-                <Autocomplete onPlaceChanged={this.showPlaceDetails.bind(this)} />
+                <Autocomplete onPlaceChanged={this.showPlaceDetails.bind(this)}/>
 
                 <TextField
-                    key="street_number"
-                    label="street_number"
-                    name="street_number"
+                    key="address"
+                    label="address"
+                    name="address"
                     className={classes.textField}
-                    value={this.state.street_number}
+                    value={this.state.address}
                     margin="normal"
                     variant="outlined"
                     onChange={this.handleInputChange}
-                />
-
-                <TextField
-                    key="route"
-                    label="route"
-                    name="route"
-                    className={classes.textField}
-                    value={this.state.route}
-                    margin="normal"
-                    variant="outlined"
-                    onChange={this.handleInputChange}
+                    fullWidth
                 />
 
                 <TextField
@@ -244,7 +244,7 @@ class ServiceForm extends React.Component {
                     label="lat"
                     fullWidth
                     className={classes.textField}
-                    value={this.state.lat}
+                    value={this.state.location.lat}
                     margin="normal"
                     variant="outlined"
                     onChange={this.handleInputChange}
@@ -256,7 +256,7 @@ class ServiceForm extends React.Component {
                     label="lng"
                     fullWidth
                     className={classes.textField}
-                    value={this.state.lng}
+                    value={this.state.location.lng}
                     margin="normal"
                     variant="outlined"
                     onChange={this.handleInputChange}
@@ -273,6 +273,7 @@ class ServiceForm extends React.Component {
 
 const mapDispatchToProps = dispatch => ({
     startAddService: (service) => dispatch(startAddService(service)),
+    startUpdateService: (id, service) => dispatch(startUpdateService(id, service)),
     showSnackbar: (message) => dispatch(showSnackbar(message))
 });
 

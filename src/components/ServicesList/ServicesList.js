@@ -2,6 +2,7 @@ import React, {Fragment} from 'react';
 import {connect} from 'react-redux';
 import {startSetServices} from "../../redux/actions/services";
 import store from '../../redux/store';
+import {Link} from 'react-router-dom';
 
 
 import List from '@material-ui/core/List';
@@ -21,7 +22,6 @@ const ServiceList = (props) => (
     <Fragment>
         <h1>ServiceList</h1>
         <List>
-
             {props.services.map((service) => (
                 <ListItem key={service.id}>
                     <ListItemAvatar>
@@ -34,7 +34,7 @@ const ServiceList = (props) => (
                         secondary={service.description.substr(0,30)}
                     />
                     <ListItemSecondaryAction>
-                        <IconButton aria-label="Edit">
+                        <IconButton aria-label="Edit" component={Link} to={`services/${service.id}/edit`} >
                             <EditIcon/>
                         </IconButton>
                         <IconButton aria-label="Delete">
