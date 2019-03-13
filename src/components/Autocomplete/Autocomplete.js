@@ -1,5 +1,7 @@
 import React from "react";
 import TextField from '@material-ui/core/TextField';
+import InputAdornment from '@material-ui/core/InputAdornment';
+import Search from '@material-ui/icons/Search';
 
 class Autocomplete extends React.Component {
 
@@ -29,11 +31,18 @@ class Autocomplete extends React.Component {
             <TextField
                 inputRef={this.autocompleteInput}
                 id="autocomplete"
-                placeholder="Enter your address"
+                placeholder="Type to search using Google Maps API..."
                 type="text"
                 fullWidth
                 margin="normal"
                 variant="outlined"
+                InputProps={{
+                    startAdornment: (
+                        <InputAdornment position="start">
+                            <Search />
+                        </InputAdornment>
+                    ),
+                }}
             />
         );
     }
