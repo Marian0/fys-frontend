@@ -77,4 +77,13 @@ export default class FYSApiClient {
         return this.client.put(`services/${id}`, data);
     };
 
+    /**
+     *
+     * @param data
+     * @returns {AxiosPromise<any>}
+     */
+    static removeService = (id) => {
+        return this.client.delete(`services/${id}`);
+    };
+
 }

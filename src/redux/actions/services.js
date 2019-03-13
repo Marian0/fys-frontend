@@ -45,8 +45,6 @@ export const startAddService = (service) => {
     };
 };
 
-
-
 export const updateService = (service) => ({
     type: 'UPDATE_SERVICE',
     id: service.id,
@@ -67,6 +65,34 @@ export const startUpdateService = (id, service) => {
 
             if (response.status === 200) {
                 dispatch(updateService(response.data.service));
+            }
+
+            return response;
+
+        }).catch(() => dispatch(hideLoadingBar()));
+    };
+};
+
+
+export const removeService = (id) => ({
+    type: 'REMOVE_SERVICE',
+    id
+});
+
+export const startRemoveService = (id) => {
+    return (dispatch) => {
+        dispatch(showLoadingBar());
+        return FYSApiClient.removeService(id).then((response) => {
+            dispatch(hideLoadingBar());
+            console.log("REsponse", response);
+
+            if (!response.data) {
+                dispatch(showSnackbar("There was an error on the request"));
+                return;
+            }
+
+            if (response.status === 200) {
+                dispatch(removeService(response.data.service.id));
             }
 
             return response;
