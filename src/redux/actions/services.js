@@ -7,10 +7,10 @@ export const setServices = (services) => ({
     services
 });
 
-export const startSetServices = () => {
+export const startSetServices = (params) => {
     return (dispatch) => {
         dispatch(showLoadingBar());
-        return FYSApiClient.getServices().then((response) => {
+        return FYSApiClient.getServices(params).then((response) => {
             dispatch(setServices(response.data.services));
             dispatch(hideLoadingBar());
         }).catch(() => dispatch(hideLoadingBar()));

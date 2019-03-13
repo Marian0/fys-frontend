@@ -47,8 +47,19 @@ export default class FYSApiClient {
      * GetServices
      * @returns {AxiosPromise<any>}
      */
-    static getServices = () => {
-        return this.client.get(`services`);
+    static getServices = (params) => {
+
+        let url = `services?search`;
+
+        if (params.lat && params.lng) {
+            url += `&lat=${params.lat}&lng=${params.lng}`;
+        }
+
+        if (params.distanceKm) {
+            url += `&distanceKm=${params.distanceKm}`;
+        }
+
+        return this.client.get(url);
     };
 
     /**
