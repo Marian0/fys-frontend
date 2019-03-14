@@ -29,6 +29,7 @@ class ServiceList extends React.Component {
 
     state = {
         labelWidth: 0,
+        page: 1,
         distanceKm: "",
         location: false,
         location_error: "",
@@ -48,22 +49,6 @@ class ServiceList extends React.Component {
                 () => reject(new Error('Permission denied'))
             );
         });
-    };
-
-    getServices = () => {
-
-        const params = {};
-
-        if (this.state.distanceKm) {
-            params['distanceKm'] = this.state.distanceKm;
-        }
-
-        if (this.state.location) {
-            params['lat'] = this.state.location.lat;
-            params['lng'] = this.state.location.lng;
-        }
-
-        this.props.startSetServices(params);
     };
 
     componentDidMount() {
@@ -89,20 +74,53 @@ class ServiceList extends React.Component {
             });
 
         }).finally(() => {
-            this.getServices()
+            this.props.startSetServices({
+                lat: this.state.location ? this.state.location.lat : null,
+                lng: this.state.location ? this.state.location.lng : null,
+                distanceKm: this.state.distanceKm,
+                page: this.state.page
+            });
         });
 
     }
 
 
     handleChange = event => {
-        this.setState({distanceKm: event.target.value});
+        this.setState({
+            distanceKm: event.target.value,
+            page: 1
+        });
 
         this.props.startSetServices({
             lat: this.state.location.lat,
             lng: this.state.location.lng,
-            distanceKm: event.target.value
+            distanceKm: event.target.value,
+            page: this.state.page
         });
+    };
+
+    setPage = (i) => {
+
+        if (i > 0) {
+
+            this.setState(prev => ({page: prev.page + 1}),
+                () => this.props.startSetServices({
+                    lat: this.state.location ? this.state.location.lat : null,
+                    lng: this.state.location ? this.state.location.lng : null,
+                    distanceKm: this.state.distanceKm,
+                    page: this.state.page
+                }));
+
+        } else {
+
+            this.setState(prev => ({page: Math.max(prev.page - 1, 1)}), () => this.props.startSetServices({
+                lat: this.state.location ? this.state.location.lat : null,
+                lng: this.state.location ? this.state.location.lng : null,
+                distanceKm: this.state.distanceKm,
+                page: this.state.page
+            }));
+
+        }
     };
 
 
@@ -147,8 +165,13 @@ class ServiceList extends React.Component {
                     </Grid>
                     <Grid item xs>
                         <Button variant="contained" type="submit" color="primary"
-                                onClick={() => this.getServices()}>
-                            Reload
+                                onClick={() => this.setPage(-1)}>
+                            Prev
+                        </Button>
+                        Page: {this.state.page}
+                        <Button variant="contained" type="submit" color="primary"
+                                onClick={() => this.setPage(1)}>
+                            Next
                         </Button>
                     </Grid>
                 </Grid>

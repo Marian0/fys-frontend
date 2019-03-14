@@ -59,6 +59,10 @@ export default class FYSApiClient {
             url += `&distanceKm=${params.distanceKm}`;
         }
 
+        if (params.page) {
+            url += `&page=${params.page}`;
+        }
+
         return this.client.get(url);
     };
 
