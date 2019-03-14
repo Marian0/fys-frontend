@@ -86,6 +86,10 @@ class ServiceList extends React.Component {
 
 
     handleChange = event => {
+        if (!this.state.location.lat || !this.state.location.lng) {
+            return;
+        }
+
         this.setState({
             distanceKm: event.target.value,
             page: 1
